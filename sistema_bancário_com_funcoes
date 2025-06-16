@@ -1,0 +1,137 @@
+def deposito(valor, /, saldo, extrato):
+
+    if valor <= 0:
+        print("Depósito inválido. Tente novamente!")
+
+    else:
+        saldo += valor
+        extrato += f"Depósito: R$ {valor:.2f}\n"
+
+    return saldo, extrato
+
+
+def saque(*, valor, saldo, extrato, limite, numero_saques, LIMITE_SAQUES):
+
+    if valor > saldo:
+        print("Saque inválido.")
+        
+    elif valor > limite:
+        print("Limite de saque excedido.")
+
+    elif numero_saques > LIMITE_SAQUES:
+        print("Número máximo de saques excedido.")  
+
+    elif valor <= 0:
+        print("Valor inválido.")  
+
+    else:
+        saldo -= valor
+        extrato += f"Saque: R$ {valor:.2f}\n"
+        numero_saques += 1
+    print("Saque realizado com sucesso.")
+
+    return saldo, extrato, numero_saques
+
+
+def extrato(saldo, /, *, extrato):
+    print("\n================ EXTRATO ================")
+    print("Não foram realizadas movimentações." if not extrato else extrato)
+    print(f"\nSaldo: R$ {saldo:.2f}")
+    print("==========================================")
+
+def criar_usuario(usuarios):
+    cpf = input("CPF (Somente números): ").strip()
+
+    for usuario in usuarios:
+        if usuario["cpf"] == cpf:
+            print("CPF já cadastrado.")
+            return usuarios
+        
+    nome = input("Nome: ")
+    data_nasc = input("Data de Nascimento: ")
+    endereco = input("Endereço: ")
+
+    novo_usuario = {
+        'nome': nome,
+        'data_nascimento': data_nasc,
+        'cpf': cpf,
+        'endereco': endereco
+    }
+    
+    usuarios.append(novo_usuario)
+    print("Usuário cadastrado com sucesso.")
+    return usuarios
+
+def criar_conta(agencia, usuarios, contas, numero_conta):
+    cpf = input("Informe o CPF do usuário: ").strip()
+    usuario = next((user for user in usuarios if user["cpf"] == cpf), None)
+
+    if usuario:
+        nova_conta = {
+            "agencia": agencia,
+            "numero_conta": numero_conta,
+            "usuario": usuario
+        }
+        contas.append(nova_conta)
+        print("Conta criada com sucesso.")
+    else:
+        print("Usuário não encontrado.")
+    
+    return contas
+
+
+# ------------------- PROGRAMA PRINCIPAL -------------------
+
+menu = """
+[d] Depositar
+[s] Sacar
+[e] Extrato
+[u] Novo usuário
+[c] Nova conta
+[q] Sair
+
+=> """
+
+saldo = 0
+limite = 500
+extrato = ""
+numero_saques = 0
+LIMITE_SAQUES = 3
+usuarios = []
+contas = []
+AGENCIA = '0001'
+
+while True:
+
+    opcao = input(menu).lower().strip()
+
+    if opcao == "d":
+        valor = float(input("Valor a ser depositado: "))
+        saldo, extrato = deposito(valor, saldo, extrato)
+
+    elif opcao == "s":
+        valor_saque = float(input("Valor a ser sacado: "))
+        saldo, extrato, numero_saques = saque(
+            valor=valor_saque,
+            saldo=saldo,
+            extrato=extrato,
+            limite=limite,
+            numero_saques=numero_saques,
+            LIMITE_SAQUES=LIMITE_SAQUES
+        )
+               
+    elif opcao == "e":
+        extrato(saldo, extrato=extrato)
+
+    elif opcao == "u":
+        usuarios = criar_usuario(usuarios)
+
+    elif opcao == "c":
+        numero_conta = len(contas) + 1
+        contas = criar_conta(AGENCIA, usuarios, contas, numero_conta)
+
+    elif opcao == "q":
+        break
+
+    else:
+        print("Operação inválida. Tente novamente!")
